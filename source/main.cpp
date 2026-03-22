@@ -44,66 +44,54 @@ PPC_STUB(rex_DmTraceSaveBuffer);
 PPC_STUB(rex_DmTraceSetBufferSize);
 PPC_STUB(rex_DmRegisterCommandProcessorEx);
 
-// XAM
-
-REXCVAR_DEFINE_STRING(username, "User", "Rex/User", "override the users name");
-
-namespace rex::kernel::xam
-{
-	extern ppc_u32_result_t XamUserGetName_entry(ppc_u32_t user_index, ppc_pchar_t buffer,
-		ppc_u32_t buffer_len);
-}
-
-ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
-	ppc_u32_t buffer_len)
-{
-	ppc_u32_result_t result;
-
-	auto username = REXCVAR_GET(username);
-	if (username[0] != 0)
-	{
-		rex::string::util_copy_truncating(buffer, username, std::min(buffer_len.value(), uint32_t(16)));
-
-		// X_E_SUCCESS
-		result = 0U;
-	}
-	else
-	{
-		result = rex::kernel::xam::XamUserGetName_entry(user_index, buffer, buffer_len);
-	}
-	return result;
-}
-REX_PPC_HOOK(XUserGetName);
+//extern "C" PPC_WEAK_FUNC(rex_DmWalkLoadedModules)
+//{
+//	(void)base;
+//	ctx.r3.u64 = 0x82DA0104;
+//}
 
 // REX
 
-// for some reason `_vsnprintf` isn't being picked up
 PPC_EXTERN_IMPORT(__imp___vsnprintf);
 extern "C" PPC_FUNC(sub_82FBCCC0)
 {
 	__imp___vsnprintf(ctx, base);
 }
 
+PPC_EXTERN_IMPORT(__imp__sprintf);
+extern "C" PPC_FUNC(sub_82FB82B0)
+{
+	__imp__sprintf(ctx, base);
+}
+
 // BLAM!
 
-void track_code_sections(void)
+int microsoft_crt_report_hook(int report_type, char* message, int* return_value)
 {
-}
-PPC_HOOK(sub_823E5CE0, track_code_sections);
+	(void)(report_type);
+	(void)(message);
+	(void)(return_value);
 
-void stack_walk_initialize(void)
-{
-}
-REX_PPC_HOOK(stack_walk_initialize);
+	REXCPU_ERROR("microsoft_crt_report_hook(report_type = {}, message = {}, return_value = ?)", report_type, message);
 
-// $TODO patch out XCR
-void input_update(void)
-{
+	return 1;
 }
-REX_PPC_HOOK(input_update);
+REX_PPC_HOOK(microsoft_crt_report_hook);
+
+REX_DATA_REFERENCE_DECLARE(0x83E3BBBC, rex::be_i32, render_bloom_source);
 
 bool cache_files_copy_fonts(void)
 {
+	{
+		render_bloom_source = 0;
+	}
+
 	return true;
 }
 REX_PPC_HOOK(cache_files_copy_fonts);
+
+void track_code_sections(void) { }
+PPC_HOOK(sub_823E5CE0, track_code_sections);
+
+void stack_walk_initialize(void) { }
+REX_PPC_HOOK(stack_walk_initialize);
