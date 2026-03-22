@@ -9,91 +9,9 @@
 
 REX_DEFINE_APP(halo3_cache_debug, Halo3CacheDebugApp::Create)
 
-// BLAM!
-
 #include "rex_macros.h"
 
-REXCVAR_DEFINE_STRING(username, "User", "Rex/User", "override the users name");
-
-namespace rex::kernel::xam
-{
-	extern ppc_u32_result_t XamUserGetName_entry(ppc_u32_t user_index, ppc_pchar_t buffer,
-		ppc_u32_t buffer_len);
-}
-
-ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
-	ppc_u32_t buffer_len)
-{
-	ppc_u32_result_t result;
-
-	auto username = REXCVAR_GET(username);
-	if (username[0] != 0)
-	{
-		rex::string::util_copy_truncating(buffer, username, std::min(buffer_len.value(), uint32_t(16)));
-
-		// X_E_SUCCESS
-		result = 0U;
-	}
-	else
-	{
-		result = rex::kernel::xam::XamUserGetName_entry(user_index, buffer, buffer_len);
-	}
-	return result;
-}
-REX_PPC_HOOK(XUserGetName);
-
-#include <rex/ppc/function.h>
-
-void track_code_sections(void)
-{
-}
-PPC_HOOK(sub_823E5CE0, track_code_sections);
-
-void stack_walk_initialize(void)
-{
-}
-REX_PPC_HOOK(stack_walk_initialize);
-
-void profiler_initialize_system(void)
-{
-}
-REX_PPC_HOOK(profiler_initialize_system);
-
-void events_initialize(void)
-{
-}
-REX_PPC_HOOK(events_initialize);
-
-void network_remote_reporting_initialize(void)
-{
-}
-REX_PPC_HOOK(network_remote_reporting_initialize);
-
-// Create a simple stub that does nothing
-#define PPC_STUB2(subroutine)             \
-  extern "C" PPC_FUNC(subroutine) {       \
-    (void)base;                           \
-    REXKRNL_WARN("{} STUB", #subroutine); \
-  }
-
-// Create a stub that returns a specific value
-#define PPC_STUB_RETURN2(subroutine, value)                                               \
-  extern "C" PPC_FUNC(subroutine) {                                                       \
-    (void)base;                                                                           \
-    REXKRNL_WARN("{} STUB - returning {:#x}", #subroutine, static_cast<uint32_t>(value)); \
-    ctx.r3.u64 = (value);                                                                 \
-  }
-
-PPC_STUB2(sub_83C87810);
-PPC_STUB2(sub_83C87840);
-//PPC_STUB2(font_initialize);
-
-PPC_STUB_RETURN2(sub_828BF480, true);
-
-//void display_assert(const char* information, const char* file, long line, bool fatal)
-//{
-//}
-//REX_PPC_HOOK(display_assert);
+// XBDM
 
 //PPC_STUB(rex_CAP_Enter_Function);
 //PPC_STUB(rex_CAP_Exit_Function);
@@ -125,3 +43,67 @@ PPC_STUB(rex_DmTraceStopRecording);
 PPC_STUB(rex_DmTraceSaveBuffer);
 PPC_STUB(rex_DmTraceSetBufferSize);
 PPC_STUB(rex_DmRegisterCommandProcessorEx);
+
+// XAM
+
+REXCVAR_DEFINE_STRING(username, "User", "Rex/User", "override the users name");
+
+namespace rex::kernel::xam
+{
+	extern ppc_u32_result_t XamUserGetName_entry(ppc_u32_t user_index, ppc_pchar_t buffer,
+		ppc_u32_t buffer_len);
+}
+
+ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
+	ppc_u32_t buffer_len)
+{
+	ppc_u32_result_t result;
+
+	auto username = REXCVAR_GET(username);
+	if (username[0] != 0)
+	{
+		rex::string::util_copy_truncating(buffer, username, std::min(buffer_len.value(), uint32_t(16)));
+
+		// X_E_SUCCESS
+		result = 0U;
+	}
+	else
+	{
+		result = rex::kernel::xam::XamUserGetName_entry(user_index, buffer, buffer_len);
+	}
+	return result;
+}
+REX_PPC_HOOK(XUserGetName);
+
+// REX
+
+// for some reason `_vsnprintf` isn't being picked up
+PPC_EXTERN_IMPORT(__imp___vsnprintf);
+extern "C" PPC_FUNC(sub_82FBCCC0)
+{
+	__imp___vsnprintf(ctx, base);
+}
+
+// BLAM!
+
+void track_code_sections(void)
+{
+}
+PPC_HOOK(sub_823E5CE0, track_code_sections);
+
+void stack_walk_initialize(void)
+{
+}
+REX_PPC_HOOK(stack_walk_initialize);
+
+// $TODO patch out XCR
+void input_update(void)
+{
+}
+REX_PPC_HOOK(input_update);
+
+bool cache_files_copy_fonts(void)
+{
+	return true;
+}
+REX_PPC_HOOK(cache_files_copy_fonts);

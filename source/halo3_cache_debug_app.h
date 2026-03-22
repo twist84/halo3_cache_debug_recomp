@@ -7,6 +7,7 @@
 
 #include <rex/rex_app.h>
 
+#include <rex/dbg.h>
 #include <rex/filesystem/devices/host_path_device.h>
 #include <rex/filesystem/vfs.h>
 #include <rex/graphics/flags.h>
@@ -98,7 +99,7 @@ void Halo3CacheDebugApp::OnPostSetup()
 
 void Halo3CacheDebugApp::OnConfigurePaths(rex::PathConfig& paths)
 {
-	if (IsDebuggerPresent() == FALSE)
+	if (!rex::debug::IsDebuggerAttached())
 	{
 		// for user deployments not a developer debugging
 		paths.game_data_root = ".";
