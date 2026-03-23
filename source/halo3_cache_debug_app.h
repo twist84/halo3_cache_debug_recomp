@@ -31,10 +31,10 @@ protected:
 	// void OnShutdown() override {}
 	// void OnConfigurePaths(rex::PathConfig& paths) override {}
 
-	virtual void OnPreSetup(rex::RuntimeConfig& config) override;
-	virtual void OnLoadXexImage(std::string& xex_image) override;
-	virtual void OnPostSetup() override;
-	virtual void OnConfigurePaths(rex::PathConfig& paths) override;
+	void OnPreSetup(rex::RuntimeConfig& config) override;
+	void OnLoadXexImage(std::string& xex_image) override;
+	void OnPostSetup() override;
+	void OnConfigurePaths(rex::PathConfig& paths) override;
 };
 
 // BLAM!
