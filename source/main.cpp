@@ -80,13 +80,14 @@ REX_PPC_HOOK(microsoft_crt_report_hook);
 
 REX_DATA_REFERENCE_DECLARE(0x83E3BBBC, rex::be_i32, render_bloom_source);
 
+REX_PPC_EXTERN_IMPORT(cache_files_copy_fonts);
 bool cache_files_copy_fonts(void)
 {
+	bool result = true; // REX_PPC_INVOKE(cache_files_copy_fonts);
 	{
 		render_bloom_source = 0;
 	}
-
-	return true;
+	return result;
 }
 REX_PPC_HOOK(cache_files_copy_fonts);
 
