@@ -66,6 +66,30 @@ extern "C" PPC_FUNC(sub_82FB82B0)
 
 // BLAM!
 
+struct s_server_connect_info
+{
+	char ip[16]; // 0x0
+	rex::be_u16 port; // 0x10
+	char services_supported[200]; // 0x12
+};
+static_assert(sizeof(s_server_connect_info) == 0xDA);
+
+REX_DATA_REFERENCE_DECLARE(0x83CE0FF4, rex::be_i32, x_link_status_override);
+REX_DATA_REFERENCE_DECLARE(0x83E3BBBC, rex::be_i32, render_bloom_source);
+REX_DATA_REFERENCE_DECLARE_ARRAY(0x83F61D40, s_server_connect_info, g_additional_raw_servers, 3);
+
+REX_PPC_EXTERN_IMPORT(cache_files_copy_fonts);
+
+int microsoft_crt_report_hook(int report_type, char* message, int* return_value);
+bool cache_files_copy_fonts(void);
+void track_code_sections(void);
+void stack_walk_initialize(void);
+
+REX_PPC_HOOK(microsoft_crt_report_hook);
+REX_PPC_HOOK(cache_files_copy_fonts);
+PPC_HOOK(sub_823E5CE0, track_code_sections);
+REX_PPC_HOOK(stack_walk_initialize);
+
 int microsoft_crt_report_hook(int report_type, char* message, int* return_value)
 {
 	(void)(report_type);
@@ -76,23 +100,34 @@ int microsoft_crt_report_hook(int report_type, char* message, int* return_value)
 
 	return 1;
 }
-REX_PPC_HOOK(microsoft_crt_report_hook);
 
-REX_DATA_REFERENCE_DECLARE(0x83E3BBBC, rex::be_i32, render_bloom_source);
-
-REX_PPC_EXTERN_IMPORT(cache_files_copy_fonts);
 bool cache_files_copy_fonts(void)
 {
-	bool result = true; // REX_PPC_INVOKE(cache_files_copy_fonts);
-	{
-		render_bloom_source = 0;
-	}
-	return result;
+	// REX_PPC_INVOKE(cache_files_copy_fonts);
+	return true;
 }
-REX_PPC_HOOK(cache_files_copy_fonts);
 
-void track_code_sections(void) { }
-PPC_HOOK(sub_823E5CE0, track_code_sections);
+void track_code_sections(void)
+{
+}
+void stack_walk_initialize(void)
+{
+	// PATCHES
+	// $TODO give these a proper home
+	{
+		// fix bloom source
+		render_bloom_source = 0;
 
-void stack_walk_initialize(void) { }
-REX_PPC_HOOK(stack_walk_initialize);
+		// override `XNetGetEthernetLinkStatus` to allow `transport_startup` to be called
+		x_link_status_override = 1;
+
+		// override last additional raw LSP server
+		{
+			// $TODO replace `127.0.0.1` with sunrise address
+			strncpy_s(g_additional_raw_servers[2].ip, "127.0.0.1", 16);
+			g_additional_raw_servers[2].port = 80;
+			strncpy_s(g_additional_raw_servers[2].services_supported, "ttl,usr,shr,web,dbg", 200);
+		}
+	}
+	// $IMPLEMENT
+}
