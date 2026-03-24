@@ -10,6 +10,7 @@
 #include <rex/dbg.h>
 #include <rex/filesystem/devices/host_path_device.h>
 #include <rex/filesystem/vfs.h>
+#include <rex/flags.h>
 #include <rex/graphics/flags.h>
 #include <rex/input/flags.h>
 
@@ -41,6 +42,7 @@ protected:
 
 void Halo3CacheDebugApp::OnPreSetup(rex::RuntimeConfig& config)
 {
+	REXCVAR_SET(allow_game_relative_writes, true);
 	REXCVAR_SET(gpu_allow_invalid_fetch_constants, true);
 	REXCVAR_SET(input_backend, "xinput");
 	//REXCVAR_SET(fullscreen, true);
