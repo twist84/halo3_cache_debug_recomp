@@ -58,6 +58,61 @@ PRINT_IMPORT_HELPER(sub_82FB82B0, sprintf);
 
 #undef PRINT_HOOK_HELPER
 
+// XAM
+
+#include <rex/system/xsocket.h>
+#include <winsock.h>
+
+REX_PPC_EXTERN_IMPORT(connect);
+REX_PPC_EXTERN_IMPORT(recv);
+
+using namespace rex::system;
+
+int native_connect(SOCKET s, const XSOCKADDR *name, int namelen);
+int native_recv(SOCKET s, uint8_t *buf, int len, int flags);
+
+PPC_HOOK(rex_connect, native_connect);
+PPC_HOOK(rex_recv, native_recv);
+
+int native_connect(SOCKET s, const XSOCKADDR *name, int namelen)
+{
+	auto socket = kernel_state()->object_table()->LookupObject<XSocket>(s);
+	if (!socket)
+	{
+		XThread::SetLastError(uint32_t(0x2736)); // X_WSAError::X_WSAENOTSOCK
+		return -1;
+	}
+
+	N_XSOCKADDR address = name;
+
+	rex::X_STATUS status = socket->Connect(&address, namelen);
+	if (XFAILED(status)) // skip over for testing
+	{
+		//XThread::SetLastError(socket->GetLastWSAError());
+		//return -1;
+	}
+
+	return 0;
+}
+
+int native_recv(SOCKET s, uint8_t *buf, int len, int flags)
+{
+	auto socket =
+	kernel_state()->object_table()->LookupObject<XSocket>(s);
+	if (!socket)
+	{
+		XThread::SetLastError(uint32_t(0x2736)); // X_WSAError::X_WSAENOTSOCK
+		return -1;
+	}
+
+	int ret = socket->Recv(buf, len, flags);
+	if (ret < 0)
+	{
+		//XThread::SetLastError(socket->GetLastWSAError());
+	}
+	return ret;
+}
+
 // BLAM!
 
 struct s_server_connect_info
@@ -191,34 +246,7 @@ static void hs_get_function_documentation_string(short function_index, char* buf
 	REX_PPC_INVOKE(hs_get_function_documentation_string, function_index, buffer, buffer_size);
 }
 
-#include <rex/system/xsocket.h>
-#include <winsock.h>
-
-using namespace rex::system;
-
-REX_PPC_EXTERN_IMPORT(connect);
-int connect_native(
-		 SOCKET s,
-		 const XSOCKADDR *name,
-		 int namelen
-)
+static void stack_walk_with_context_internal(const struct s_file_reference* file, short levels_to_ignore, _CONTEXT* context_pointer, void* reference_ignore_address, long levels_to_walk, unsigned long* out_stack_walk_buffer, long* out_levels_walked)
 {
-	auto socket = REX_KERNEL_OBJECTS()->LookupObject<XSocket>(s);
-	if (!socket)
-	{
-		XThread::SetLastError(uint32_t(0x2736)); // X_WSAError::X_WSAENOTSOCK
-		return -1;
-	}
-
-	N_XSOCKADDR address = name;
-
-	rex::X_STATUS status = socket->Connect(&address, namelen);
-	if (XFAILED(status)) // skip over for testing
-	{
-		//XThread::SetLastError(socket->GetLastWSAError());
-		//return -1;
-	}
-
-	return 0;
+	// skip stack walk for now
 }
-PPC_HOOK(rex_connect, connect_native);
