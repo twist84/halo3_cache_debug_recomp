@@ -99,6 +99,8 @@ static void hs_get_function_documentation_string(short function_index, char* buf
 REX_PPC_HOOK(cache_files_copy_fonts);
 REX_PPC_HOOK(hs_doc)
 
+long const g_additional_raw_server_index = 0;
+
 bool cache_files_copy_fonts(void)
 {
 	// PATCHES
@@ -116,14 +118,38 @@ bool cache_files_copy_fonts(void)
 			auto raw_port = static_cast<uint16_t>(REXCVAR_GET(raw_port));
 			auto raw_services_supported = REXCVAR_GET(raw_services_supported).c_str();
 
-			strncpy_s(g_additional_raw_servers[2].ip, raw_host, 16);
-			g_additional_raw_servers[2].port = raw_port;
-			strncpy_s(g_additional_raw_servers[2].services_supported, raw_services_supported, 200);
+			strncpy_s(g_additional_raw_servers[g_additional_raw_server_index].ip, raw_host, 16);
+			g_additional_raw_servers[g_additional_raw_server_index].port = raw_port;
+			strncpy_s(g_additional_raw_servers[g_additional_raw_server_index].services_supported, raw_services_supported, 200);
 		}
 	}
 	//return REX_PPC_INVOKE(cache_files_copy_fonts);
 	return true;
 }
+
+enum e_session_network_message
+{
+	_network_message_network_interface_guide_opened = 0,
+	_network_message_network_interface_guide_closed,
+	_network_message_network_interface_connected,
+	_network_message_network_interface_connection_lost,
+	_network_message_connected_to_live,
+	_network_message_lost_connection_to_live,
+	_network_message_all_players_signed_out,
+};
+
+REX_PPC_EXTERN_IMPORT(network_session_interface_handle_message);
+void network_session_interface_handle_message(e_session_network_message message)
+{
+	// LSP is locked behind `online_is_connected_to_live`, force it for now
+	if (message == _network_message_network_interface_connected)
+	{
+		message = _network_message_connected_to_live;
+	}
+
+	REX_PPC_INVOKE(network_session_interface_handle_message, message);
+}
+REX_PPC_HOOK(network_session_interface_handle_message);
 
 // rexglue doesn't handle ResolvePath("hs_doc.txt") correctly
 // we fix it by implementing `hs_doc` directly
@@ -164,3 +190,35 @@ static void hs_get_function_documentation_string(short function_index, char* buf
 {
 	REX_PPC_INVOKE(hs_get_function_documentation_string, function_index, buffer, buffer_size);
 }
+
+#include <rex/system/xsocket.h>
+#include <winsock.h>
+
+using namespace rex::system;
+
+REX_PPC_EXTERN_IMPORT(connect);
+int connect_native(
+		 SOCKET s,
+		 const XSOCKADDR *name,
+		 int namelen
+)
+{
+	auto socket = REX_KERNEL_OBJECTS()->LookupObject<XSocket>(s);
+	if (!socket)
+	{
+		XThread::SetLastError(uint32_t(0x2736)); // X_WSAError::X_WSAENOTSOCK
+		return -1;
+	}
+
+	N_XSOCKADDR address = name;
+
+	rex::X_STATUS status = socket->Connect(&address, namelen);
+	if (XFAILED(status)) // skip over for testing
+	{
+		//XThread::SetLastError(socket->GetLastWSAError());
+		//return -1;
+	}
+
+	return 0;
+}
+PPC_HOOK(rex_connect, connect_native);
