@@ -43,10 +43,18 @@
 	PPCContext& __restrict name = *context
 
 #define REX_PPC_MEMBASE_PTR(name) \
-auto* runtime = rex::Runtime::instance(); \
-auto* memory = runtime->memory(); \
-uint8_t* name = memory->virtual_membase()
+	auto runtime = rex::Runtime::instance(); \
+	auto memory = runtime->memory(); \
+	auto name = memory->virtual_membase()
 
+#define REX_PPC_HEAP_ALLOC(type, name, size) \
+	assert(memory != nullptr); \
+	auto name##_guest = memory->SystemHeapAlloc(size + 1); \
+	type* printbuffer = memory->TranslateVirtual<type*>(name##_guest)
+
+#define REX_PPC_HEAP_FREE(name) \
+	assert(memory != nullptr); \
+	memory->SystemHeapFree(name##_guest)
 
 /* ---------- definitions */
 
