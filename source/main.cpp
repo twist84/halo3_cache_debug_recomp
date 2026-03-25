@@ -115,6 +115,17 @@ int native_recv(SOCKET s, uint8_t *buf, int len, int flags)
 
 // BLAM!
 
+enum e_session_network_message
+{
+	_network_message_network_interface_guide_opened = 0,
+	_network_message_network_interface_guide_closed,
+	_network_message_network_interface_connected,
+	_network_message_network_interface_connection_lost,
+	_network_message_connected_to_live,
+	_network_message_lost_connection_to_live,
+	_network_message_all_players_signed_out,
+};
+
 struct s_server_connect_info
 {
 	char ip[16]; // 0x0
@@ -137,22 +148,34 @@ REXCVAR_DEFINE_STRING(raw_services_supported, "ttl,usr,shr,web,dbg", "Blam/Netwo
 	.lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
 
 REX_DATA_REFERENCE_DECLARE(0x8216B12C, rex::be_i32 const, hs_function_table_count);
-
 REX_DATA_REFERENCE_DECLARE(0x83CE0FF4, rex::be_i32, x_link_status_override);
 REX_DATA_REFERENCE_DECLARE(0x83E3BBBC, rex::be_i32, render_bloom_source);
 REX_DATA_REFERENCE_DECLARE_ARRAY(0x83F61D40, s_server_connect_info, g_additional_raw_servers, 3);
 
 REX_PPC_EXTERN_IMPORT(cache_files_copy_fonts);
+REX_PPC_EXTERN_IMPORT(network_session_interface_handle_message);
 REX_PPC_EXTERN_IMPORT(hs_get_function_parameters_string);
 REX_PPC_EXTERN_IMPORT(hs_get_function_documentation_string);
 
 bool cache_files_copy_fonts(void);
+void network_session_interface_handle_message(e_session_network_message message);
+bool online_has_signed_in_user(long controller_index);
+bool online_local_xuid_is_silver_or_gold_live(long controller_index);
+bool online_local_xuid_is_online_enabled(long controller_index);
+unsigned long long online_user_get_xuid(long controller_index);
 void hs_doc(void);
 static void hs_get_function_parameters_string(short function_index, char* buffer, long buffer_size);
 static void hs_get_function_documentation_string(short function_index, char* buffer, long buffer_size);
+static void stack_walk_with_context_internal(const struct s_file_reference* file, short levels_to_ignore, _CONTEXT* context_pointer, void* reference_ignore_address, long levels_to_walk, unsigned long* out_stack_walk_buffer, long* out_levels_walked);
 
 REX_PPC_HOOK(cache_files_copy_fonts);
+REX_PPC_HOOK(network_session_interface_handle_message);
+REX_PPC_HOOK(online_has_signed_in_user);
+REX_PPC_HOOK(online_local_xuid_is_silver_or_gold_live);
+REX_PPC_HOOK(online_local_xuid_is_online_enabled);
+REX_PPC_HOOK(online_user_get_xuid);
 REX_PPC_HOOK(hs_doc)
+REX_PPC_HOOK(stack_walk_with_context_internal);
 
 long const g_additional_raw_server_index = 0;
 
@@ -182,18 +205,6 @@ bool cache_files_copy_fonts(void)
 	return true;
 }
 
-enum e_session_network_message
-{
-	_network_message_network_interface_guide_opened = 0,
-	_network_message_network_interface_guide_closed,
-	_network_message_network_interface_connected,
-	_network_message_network_interface_connection_lost,
-	_network_message_connected_to_live,
-	_network_message_lost_connection_to_live,
-	_network_message_all_players_signed_out,
-};
-
-REX_PPC_EXTERN_IMPORT(network_session_interface_handle_message);
 void network_session_interface_handle_message(e_session_network_message message)
 {
 	// LSP is locked behind `online_is_connected_to_live`, force it for now
@@ -204,7 +215,26 @@ void network_session_interface_handle_message(e_session_network_message message)
 
 	REX_PPC_INVOKE(network_session_interface_handle_message, message);
 }
-REX_PPC_HOOK(network_session_interface_handle_message);
+
+bool online_has_signed_in_user(long controller_index)
+{
+	return controller_index == 0;
+}
+
+bool online_local_xuid_is_silver_or_gold_live(long controller_index)
+{
+	return controller_index == 0;
+}
+
+bool online_local_xuid_is_online_enabled(long controller_index)
+{
+	return controller_index == 0;
+}
+
+unsigned long long online_user_get_xuid(long controller_index)
+{
+	return controller_index == 0 ? 0x0000000555555555ULL : 0x0ULL;
+}
 
 // rexglue doesn't handle ResolvePath("hs_doc.txt") correctly
 // we fix it by implementing `hs_doc` directly
