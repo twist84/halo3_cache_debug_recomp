@@ -81,15 +81,23 @@ REXCVAR_DEFINE_INT32(raw_port, 80, "Blam/Network", "")
 REXCVAR_DEFINE_STRING(raw_services_supported, "ttl,usr,shr,web,dbg", "Blam/Network", "")
 	.lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
 
+REX_DATA_REFERENCE_DECLARE(0x8216B12C, rex::be_i32 const, hs_function_table_count);
+
 REX_DATA_REFERENCE_DECLARE(0x83CE0FF4, rex::be_i32, x_link_status_override);
 REX_DATA_REFERENCE_DECLARE(0x83E3BBBC, rex::be_i32, render_bloom_source);
 REX_DATA_REFERENCE_DECLARE_ARRAY(0x83F61D40, s_server_connect_info, g_additional_raw_servers, 3);
 
 REX_PPC_EXTERN_IMPORT(cache_files_copy_fonts);
+REX_PPC_EXTERN_IMPORT(hs_get_function_parameters_string);
+REX_PPC_EXTERN_IMPORT(hs_get_function_documentation_string);
 
 bool cache_files_copy_fonts(void);
+void hs_doc(void);
+static void hs_get_function_parameters_string(short function_index, char* buffer, long buffer_size);
+static void hs_get_function_documentation_string(short function_index, char* buffer, long buffer_size);
 
 REX_PPC_HOOK(cache_files_copy_fonts);
+REX_PPC_HOOK(hs_doc)
 
 bool cache_files_copy_fonts(void)
 {
@@ -117,4 +125,42 @@ bool cache_files_copy_fonts(void)
 	return true;
 }
 
+// rexglue doesn't handle ResolvePath("hs_doc.txt") correctly
+// we fix it by implementing `hs_doc` directly
+void hs_doc(void)
+{
+#define PRINTBUFFER_SIZE 2048
+
+	REX_PPC_MEMBASE_PTR(base);
+	REX_PPC_HEAP_ALLOC(char, printbuffer, PRINTBUFFER_SIZE);
+
+	auto file_path = runtime->game_data_root() / "hs_doc.txt";
+
+	FILE* file = nullptr;
+	fopen_s(&file, file_path.string().c_str(), "w");
+	if (file != nullptr)
+	{
+		for (long function_index = 0; function_index < hs_function_table_count; function_index++)
+		{
+			hs_get_function_parameters_string(static_cast<short>(function_index), printbuffer, PRINTBUFFER_SIZE);
+			fprintf(file, "%s\r\n", printbuffer);
+			hs_get_function_documentation_string(static_cast<short>(function_index), printbuffer, PRINTBUFFER_SIZE);
+			fprintf(file, "%s\r\n\r\n", printbuffer);
+		}
+		fclose(file);
+	}
+
+	REX_PPC_HEAP_FREE(printbuffer);
+
+#undef PRINTBUFFER_SIZE
+}
+
+static void hs_get_function_parameters_string(short function_index, char* buffer, long buffer_size)
+{
+	REX_PPC_INVOKE(hs_get_function_parameters_string, function_index, buffer, buffer_size);
+}
+
+static void hs_get_function_documentation_string(short function_index, char* buffer, long buffer_size)
+{
+	REX_PPC_INVOKE(hs_get_function_documentation_string, function_index, buffer, buffer_size);
 }
