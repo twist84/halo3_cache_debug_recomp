@@ -17,7 +17,7 @@ REX_DEFINE_APP(halo3_cache_debug, Halo3CacheDebugApp::Create)
 //PPC_STUB(rex_CAP_Exit_Function);
 PPC_STUB(rex_DmQueryMemoryStatistics);
 PPC_STUB(rex_DmCloseLoadedModules);
-PPC_STUB(rex_DmWalkLoadedModules);
+PPC_STUB_RETURN(rex_DmWalkLoadedModules, 0x82DA0104);
 PPC_STUB(rex_DmGetXboxName);
 PPC_STUB(rex_DmCloseNotificationSession);
 PPC_STUB(rex_DmNotify);
@@ -42,27 +42,21 @@ PPC_STUB(rex_DmTraceStartRecordingFunction);
 PPC_STUB(rex_DmTraceStopRecording);
 PPC_STUB(rex_DmTraceSaveBuffer);
 PPC_STUB(rex_DmTraceSetBufferSize);
-PPC_STUB(rex_DmRegisterCommandProcessorEx);
-
-//extern "C" PPC_WEAK_FUNC(rex_DmWalkLoadedModules)
-//{
-//	(void)base;
-//	ctx.r3.u64 = 0x82DA0104;
-//}
+PPC_STUB_RETURN(rex_DmRegisterCommandProcessorEx, 0);
 
 // REX
 
-PPC_EXTERN_IMPORT(__imp___vsnprintf);
-extern "C" PPC_FUNC(sub_82FBCCC0)
-{
-	__imp___vsnprintf(ctx, base);
-}
+#define PRINT_IMPORT_HELPER(name, print_name) \
+	PPC_EXTERN_IMPORT(__imp__##print_name); \
+	extern "C" PPC_FUNC(name) \
+	{ \
+		__imp__##print_name(ctx, base); \
+	}
 
-PPC_EXTERN_IMPORT(__imp__sprintf);
-extern "C" PPC_FUNC(sub_82FB82B0)
-{
-	__imp__sprintf(ctx, base);
-}
+PRINT_IMPORT_HELPER(sub_82FBCCC0, _vsnprintf);
+PRINT_IMPORT_HELPER(sub_82FB82B0, sprintf);
+
+#undef PRINT_HOOK_HELPER
 
 // BLAM!
 
@@ -74,43 +68,30 @@ struct s_server_connect_info
 };
 static_assert(sizeof(s_server_connect_info) == 0xDA);
 
+REXCVAR_DEFINE_INT32(x_link_status_override, -1, "Blam/Network", "")
+	.lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
+
+REXCVAR_DEFINE_STRING(raw_host, "127.0.0.1", "Blam/Network", "")
+	.lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
+
+REXCVAR_DEFINE_INT32(raw_port, 80, "Blam/Network", "")
+	.range(1, UINT16_MAX)
+	.lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
+
+REXCVAR_DEFINE_STRING(raw_services_supported, "ttl,usr,shr,web,dbg", "Blam/Network", "")
+	.lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
+
 REX_DATA_REFERENCE_DECLARE(0x83CE0FF4, rex::be_i32, x_link_status_override);
 REX_DATA_REFERENCE_DECLARE(0x83E3BBBC, rex::be_i32, render_bloom_source);
 REX_DATA_REFERENCE_DECLARE_ARRAY(0x83F61D40, s_server_connect_info, g_additional_raw_servers, 3);
 
 REX_PPC_EXTERN_IMPORT(cache_files_copy_fonts);
 
-int microsoft_crt_report_hook(int report_type, char* message, int* return_value);
 bool cache_files_copy_fonts(void);
-void track_code_sections(void);
-void stack_walk_initialize(void);
 
-REX_PPC_HOOK(microsoft_crt_report_hook);
 REX_PPC_HOOK(cache_files_copy_fonts);
-PPC_HOOK(sub_823E5CE0, track_code_sections);
-REX_PPC_HOOK(stack_walk_initialize);
-
-int microsoft_crt_report_hook(int report_type, char* message, int* return_value)
-{
-	(void)(report_type);
-	(void)(message);
-	(void)(return_value);
-
-	REXCPU_ERROR("microsoft_crt_report_hook(report_type = {}, message = {}, return_value = ?)", report_type, message);
-
-	return 1;
-}
 
 bool cache_files_copy_fonts(void)
-{
-	// REX_PPC_INVOKE(cache_files_copy_fonts);
-	return true;
-}
-
-void track_code_sections(void)
-{
-}
-void stack_walk_initialize(void)
 {
 	// PATCHES
 	// $TODO give these a proper home
@@ -119,15 +100,21 @@ void stack_walk_initialize(void)
 		render_bloom_source = 0;
 
 		// override `XNetGetEthernetLinkStatus` to allow `transport_startup` to be called
-		x_link_status_override = 1;
+		x_link_status_override = REXCVAR_GET(x_link_status_override);
 
-		// override last additional raw LSP server
+		// override last additional raw server
 		{
-			// $TODO replace `127.0.0.1` with sunrise address
-			strncpy_s(g_additional_raw_servers[2].ip, "127.0.0.1", 16);
-			g_additional_raw_servers[2].port = 80;
-			strncpy_s(g_additional_raw_servers[2].services_supported, "ttl,usr,shr,web,dbg", 200);
+			auto raw_host = REXCVAR_GET(raw_host).c_str();
+			auto raw_port = static_cast<uint16_t>(REXCVAR_GET(raw_port));
+			auto raw_services_supported = REXCVAR_GET(raw_services_supported).c_str();
+
+			strncpy_s(g_additional_raw_servers[2].ip, raw_host, 16);
+			g_additional_raw_servers[2].port = raw_port;
+			strncpy_s(g_additional_raw_servers[2].services_supported, raw_services_supported, 200);
 		}
 	}
-	// $IMPLEMENT
+	//return REX_PPC_INVOKE(cache_files_copy_fonts);
+	return true;
+}
+
 }
