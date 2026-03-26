@@ -13,36 +13,36 @@ REX_DEFINE_APP(halo3_cache_debug, Halo3CacheDebugApp::Create)
 
 // XBDM
 
-//PPC_STUB(rex_CAP_Enter_Function);
-//PPC_STUB(rex_CAP_Exit_Function);
-PPC_STUB(rex_DmQueryMemoryStatistics);
-PPC_STUB(rex_DmCloseLoadedModules);
-PPC_STUB_RETURN(rex_DmWalkLoadedModules, 0x82DA0104);
-PPC_STUB(rex_DmGetXboxName);
-PPC_STUB(rex_DmCloseNotificationSession);
-PPC_STUB(rex_DmNotify);
-PPC_STUB(rex_DmOpenNotificationSession);
-PPC_STUB(rex_DmIsDebuggerPresent);
-PPC_STUB(rex_DmCloseCommittedMemory);
-PPC_STUB(rex_DmWalkCommittedMemory);
-PPC_STUB(rex_DmSendNotificationString);
-PPC_STUB(rex_DmRegisterCommandProcessor);
-PPC_STUB(rex_DmCloseModuleSections);
-PPC_STUB(rex_DmWalkModuleSections);
-PPC_STUB(rex_DmCaptureStackBackTrace);
-PPC_STUB(rex_DmSuspendThread);
-PPC_STUB(rex_DmGetThreadList);
-PPC_STUB(rex_DmResumeThread);
-PPC_STUB(rex_DmGetThreadContext);
-PPC_STUB(rex_DmGetThreadInfoEx);
-PPC_STUB(rex_DmWalkLoadedModulesEx);
-PPC_STUB(rex_DmGetMemory);
-PPC_STUB(rex_DmTraceStartRecording);
-PPC_STUB(rex_DmTraceStartRecordingFunction);
-PPC_STUB(rex_DmTraceStopRecording);
-PPC_STUB(rex_DmTraceSaveBuffer);
-PPC_STUB(rex_DmTraceSetBufferSize);
-PPC_STUB_RETURN(rex_DmRegisterCommandProcessorEx, 0);
+//REX_PPC_STUB(CAP_Enter_Function);
+//REX_PPC_STUB(CAP_Exit_Function);
+REX_PPC_STUB(DmQueryMemoryStatistics);
+REX_PPC_STUB(DmCloseLoadedModules);
+REX_PPC_STUB_RETURN(DmWalkLoadedModules, 0x82DA0104);
+REX_PPC_STUB(DmGetXboxName);
+REX_PPC_STUB(DmCloseNotificationSession);
+REX_PPC_STUB(DmNotify);
+REX_PPC_STUB(DmOpenNotificationSession);
+REX_PPC_STUB(DmIsDebuggerPresent);
+REX_PPC_STUB(DmCloseCommittedMemory);
+REX_PPC_STUB(DmWalkCommittedMemory);
+REX_PPC_STUB(DmSendNotificationString);
+REX_PPC_STUB(DmRegisterCommandProcessor);
+REX_PPC_STUB(DmCloseModuleSections);
+REX_PPC_STUB(DmWalkModuleSections);
+REX_PPC_STUB(DmCaptureStackBackTrace);
+REX_PPC_STUB(DmSuspendThread);
+REX_PPC_STUB(DmGetThreadList);
+REX_PPC_STUB(DmResumeThread);
+REX_PPC_STUB(DmGetThreadContext);
+REX_PPC_STUB(DmGetThreadInfoEx);
+REX_PPC_STUB(DmWalkLoadedModulesEx);
+REX_PPC_STUB(DmGetMemory);
+REX_PPC_STUB(DmTraceStartRecording);
+REX_PPC_STUB(DmTraceStartRecordingFunction);
+REX_PPC_STUB(DmTraceStopRecording);
+REX_PPC_STUB(DmTraceSaveBuffer);
+REX_PPC_STUB(DmTraceSetBufferSize);
+REX_PPC_STUB_RETURN(DmRegisterCommandProcessorEx, 0);
 
 // REX
 

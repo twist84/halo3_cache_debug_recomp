@@ -29,6 +29,15 @@
 #define REX_PPC_HOOK(function) \
 	PPC_HOOK(rex_##function, function)
 
+#define REX_PPC_STUB(function) \
+	PPC_STUB(rex_##function)
+
+#define REX_PPC_STUB_LOG(function, msg) \
+	PPC_STUB_LOG(rex_##function, msg)
+
+#define REX_PPC_STUB_RETURN(function, value) \
+	PPC_STUB_RETURN(rex_##function, value)
+
 #define REX_DATA_REFERENCE_DECLARE(address, type, name) \
 	type& name = *reinterpret_cast<type*>(0x100000000 + address)
 
