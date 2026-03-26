@@ -11,6 +11,16 @@ REX_DEFINE_APP(halo3_cache_debug, Halo3CacheDebugApp::Create)
 
 #include "rex_macros.h"
 
+// Time
+
+REX_PPC_HOOK(GetTickCount);
+REX_PPC_HOOK(GetLocalTime);
+REX_PPC_HOOK(SwitchToThread);
+REX_PPC_HOOK(SleepEx);
+REX_PPC_HOOK(Sleep);
+REX_PPC_HOOK(GetSystemTime);
+REX_PPC_HOOK(_time64);
+
 // XBDM
 
 //REX_PPC_STUB(CAP_Enter_Function);
