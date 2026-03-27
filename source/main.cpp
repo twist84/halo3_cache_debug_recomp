@@ -71,56 +71,60 @@ PRINT_IMPORT_HELPER(sub_82FB82B0, sprintf);
 // XAM
 
 #include <rex/system/xsocket.h>
-#include <winsock.h>
 
-REX_PPC_EXTERN_IMPORT(connect);
-REX_PPC_EXTERN_IMPORT(recv);
-
-using namespace rex::system;
-
-int native_connect(SOCKET s, const XSOCKADDR *name, int namelen);
-int native_recv(SOCKET s, uint8_t *buf, int len, int flags);
-
-PPC_HOOK(rex_connect, native_connect);
-PPC_HOOK(rex_recv, native_recv);
-
-int native_connect(SOCKET s, const XSOCKADDR *name, int namelen)
+namespace rex
 {
-	auto socket = kernel_state()->object_table()->LookupObject<XSocket>(s);
-	if (!socket)
+	using namespace rex::system;
+
+	REX_PPC_EXTERN_IMPORT(connect);
+	REX_PPC_EXTERN_IMPORT(recv);
+
+	int connect(X_HANDLE s, const XSOCKADDR *name, int namelen);
+	int recv(X_HANDLE s, uint8_t *buf, int len, int flags);
+
+	REX_PPC_HOOK(connect);
+	REX_PPC_HOOK(recv);
+
+	int connect(X_HANDLE s, const XSOCKADDR *name, int namelen)
 	{
-		XThread::SetLastError(uint32_t(0x2736)); // X_WSAError::X_WSAENOTSOCK
-		return -1;
+		auto socket = kernel_state()->object_table()->LookupObject<XSocket>(s);
+		if (!socket)
+		{
+			// WSAENOTSOCK
+			XThread::SetLastError(0x2736);
+			return -1;
+		}
+
+		N_XSOCKADDR address = name;
+
+		X_STATUS status = socket->Connect(&address, namelen);
+		if (XFAILED(status)) // skip over for testing
+		{
+			//XThread::SetLastError(socket->GetLastWSAError());
+			//return -1;
+		}
+
+		return 0;
 	}
 
-	N_XSOCKADDR address = name;
-
-	rex::X_STATUS status = socket->Connect(&address, namelen);
-	if (XFAILED(status)) // skip over for testing
+	int recv(X_HANDLE s, uint8_t *buf, int len, int flags)
 	{
-		//XThread::SetLastError(socket->GetLastWSAError());
-		//return -1;
-	}
+		auto socket =
+		kernel_state()->object_table()->LookupObject<XSocket>(s);
+		if (!socket)
+		{
+			// WSAENOTSOCK
+			XThread::SetLastError(0x2736);
+			return -1;
+		}
 
-	return 0;
-}
-
-int native_recv(SOCKET s, uint8_t *buf, int len, int flags)
-{
-	auto socket =
-	kernel_state()->object_table()->LookupObject<XSocket>(s);
-	if (!socket)
-	{
-		XThread::SetLastError(uint32_t(0x2736)); // X_WSAError::X_WSAENOTSOCK
-		return -1;
+		int ret = socket->Recv(buf, len, flags);
+		if (ret < 0)
+		{
+			//XThread::SetLastError(socket->GetLastWSAError());
+		}
+		return ret;
 	}
-
-	int ret = socket->Recv(buf, len, flags);
-	if (ret < 0)
-	{
-		//XThread::SetLastError(socket->GetLastWSAError());
-	}
-	return ret;
 }
 
 // BLAM!
