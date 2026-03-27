@@ -59,7 +59,7 @@
 #define REX_PPC_HEAP_ALLOC(type, name, size) \
 	assert(memory != nullptr); \
 	auto name##_guest = memory->SystemHeapAlloc(size + 1); \
-	type* printbuffer = memory->TranslateVirtual<type*>(name##_guest)
+	type* name = memory->TranslateVirtual<type*>(name##_guest)
 
 #define REX_PPC_HEAP_FREE(name) \
 	assert(memory != nullptr); \

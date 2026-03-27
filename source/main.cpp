@@ -27,7 +27,7 @@ REX_PPC_HOOK(_time64);
 //REX_PPC_STUB(CAP_Exit_Function);
 REX_PPC_STUB(DmQueryMemoryStatistics);
 REX_PPC_STUB(DmCloseLoadedModules);
-REX_PPC_STUB_RETURN(DmWalkLoadedModules, 0x82DA0104);
+REX_PPC_STUB_RETURN(DmWalkLoadedModules, 0x82DA0104); // XBDM_ENDOFLIST
 REX_PPC_STUB(DmGetXboxName);
 REX_PPC_STUB(DmCloseNotificationSession);
 REX_PPC_STUB(DmNotify);
