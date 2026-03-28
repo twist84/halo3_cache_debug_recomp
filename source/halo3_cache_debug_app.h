@@ -10,7 +10,6 @@
 #include <rex/dbg.h>
 #include <rex/filesystem/devices/host_path_device.h>
 #include <rex/filesystem/vfs.h>
-#include <rex/flags.h>
 #include <rex/graphics/flags.h>
 #include <rex/input/flags.h>
 

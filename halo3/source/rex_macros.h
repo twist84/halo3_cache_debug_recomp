@@ -4,8 +4,8 @@
 
 /* ---------- headers */
 
-#include "generated/halo3_cache_release_config.h"
-#include "generated/halo3_cache_release_init.h"
+#include "generated/halo3_cache_debug_config.h"
+#include "generated/halo3_cache_debug_init.h"
 
 #include <rex/rex_app.h>
 #include <rex/ppc/function.h>

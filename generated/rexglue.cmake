@@ -49,10 +49,10 @@ macro(rexglue_setup_target target_name)
     rexglue_configure_target(${target_name})
 endmacro()
 
-# Codegen target - run 'cmake --build . --target halo3_cache_release_codegen'
-add_custom_target(halo3_cache_release_codegen
-    COMMAND $<TARGET_FILE:rex::rexglue> codegen ${CMAKE_CURRENT_SOURCE_DIR}/halo3_cache_release_config.toml
+# Codegen target - run 'cmake --build . --target halo3_cache_debug_codegen'
+add_custom_target(halo3_cache_debug_codegen
+    COMMAND $<TARGET_FILE:rex::rexglue> codegen ${CMAKE_CURRENT_SOURCE_DIR}/halo3_cache_debug_config.toml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Generating recompiled code for halo3_cache_release"
+    COMMENT "Generating recompiled code for halo3_cache_debug"
     VERBATIM
 )
