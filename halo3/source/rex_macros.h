@@ -17,6 +17,15 @@
 
 /* ---------- constants */
 
+#define REX_PPC_EXTERN_IMPORT_CLASS(class_name, function) \
+	PPC_EXTERN_IMPORT(__imp__rex_##class_name##_##function)
+
+#define REX_PPC_INVOKE_CLASS(class_name, function, ...) \
+	rex::GuestToHostFunction<function_return_t<decltype(function)>>(__imp__rex_##class_name##_##function, __VA_ARGS__)
+
+#define REX_PPC_HOOK_CLASS(class_name, function) \
+	PPC_HOOK(rex_##class_name##_##function, class_name::function)
+
 #define REX_PPC_EXTERN_IMPORT(function) \
 	PPC_EXTERN_IMPORT(__imp__rex_##function)
 
