@@ -34,6 +34,7 @@
 REX_PPC_EXTERN_IMPORT(shell_halt_on_pure_virtual_call);
 REX_PPC_EXTERN_IMPORT(shell_initialize);
 REX_PPC_EXTERN_IMPORT(shell_dispose);
+REX_PPC_EXTERN_IMPORT(microsoft_crt_report_hook);
 
 // hooks
 
@@ -73,23 +74,18 @@ void minidump_compression_initialize(void)
 
 bool shell_initialize(bool null_device)
 {
-    // $TODO investigate crash in `sound_initialize` when enabled
-
-#if 1
-    return REX_PPC_INVOKE(shell_initialize, null_device);
-#else
     bool success;
 
-    //_set_purecall_handler(&shell_halt_on_pure_virtual_call);
-    //_CrtSetReportHook2(_CRT_RPTHOOK_INSTALL, microsoft_crt_report_hook);
+    _set_purecall_handler(&shell_halt_on_pure_virtual_call);
+    _CrtSetReportHook2(_CRT_RPTHOOK_INSTALL, microsoft_crt_report_hook);
 
     cseries_initialize();
     SYSTEM_DEBUG_MEMORY("after cseries_initialize()");
 
     //PROFILER_BEGIN("shell_initialize", 0);
 
-    //errors_initialize();
-    //SYSTEM_DEBUG_MEMORY("after errors_initialize()");
+    errors_initialize();
+    SYSTEM_DEBUG_MEMORY("after errors_initialize()");
 
     events_initialize();
     SYSTEM_DEBUG_MEMORY("after events_initialize()");
@@ -143,7 +139,6 @@ bool shell_initialize(bool null_device)
         success = false;
     }
     return success;
-#endif
 }
 
 void shell_dispose(void)
@@ -172,6 +167,11 @@ void shell_dispose(void)
 void shell_platform_verify(void)
 {
 
+}
+
+int microsoft_crt_report_hook(int report_type, char* message, int* return_value)
+{
+    return REX_PPC_INVOKE(microsoft_crt_report_hook, report_type, message, return_value);
 }
 
 /* ---------- private code */
