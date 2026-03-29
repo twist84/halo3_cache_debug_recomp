@@ -489,20 +489,20 @@ char* csstrtok(char* s, char const* delimiters, enum e_csstrtok_delimiter_mode d
 	return result;
 }
 
-int strcmp_debug(const char* s1, const char* s2)
+int strcmp_debug(char const* s1, char const* s2)
 {
 	assert(s1 && s2);
 	return strcmp(s1, s2);
 }
 
-int strncmp_debug(const char* s1, const char* s2, size_t size)
+int strncmp_debug(char const* s1, char const* s2, size_t size)
 {
 	assert(s1 && s2);
 	assert(size >= 0 && size <= k_maximum_string_size);
 	return strncmp(s1, s2, size);
 }
 
-size_t strlen_debug(const char* s)
+size_t strlen_debug(char const* s)
 {
 	assert(s);
 	size_t length = strlen(s);
@@ -510,7 +510,7 @@ size_t strlen_debug(const char* s)
 	return length;
 }
 
-char* strstr_debug(const char* haystack, const char* needle)
+char* strstr_debug(char const* haystack, char const* needle)
 {
 	assert(haystack);
 	assert(needle);
@@ -519,7 +519,7 @@ char* strstr_debug(const char* haystack, const char* needle)
 	return substring;
 }
 
-char* strchr_debug(const char* haystack, int needle)
+char* strchr_debug(char const* haystack, int needle)
 {
 	assert(haystack);
 	char* substring = const_cast<char*>(strchr(haystack, needle));
@@ -527,7 +527,7 @@ char* strchr_debug(const char* haystack, int needle)
 	return substring;
 }
 
-char* strrchr_debug(const char* haystack, int needle)
+char* strrchr_debug(char const* haystack, int needle)
 {
 	assert(haystack);
 	char* substring = const_cast<char*>(strrchr(haystack, needle));

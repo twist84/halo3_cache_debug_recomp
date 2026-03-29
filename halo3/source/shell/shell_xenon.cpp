@@ -15,7 +15,7 @@
 
 /* ---------- prototypes */
 
-int main(int argc, const char** argv, const char** envp);
+int main(int argc, char const** argv, char const** envp);
 
 /* ---------- globals */
 
@@ -58,7 +58,7 @@ void file_system_cache_initialize(void)
     REX_PPC_INVOKE(file_system_cache_initialize);
 }
 
-int main(int argc, const char** argv, const char** envp)
+int main(int argc, char const** argv, char const** envp)
 {
     SYSTEM_DEBUG_MEMORY("initial call into main()");
 

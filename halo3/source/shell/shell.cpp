@@ -88,8 +88,8 @@ bool shell_initialize(bool null_device)
 
     //PROFILER_BEGIN("shell_initialize", 0);
 
-    errors_initialize();
-    SYSTEM_DEBUG_MEMORY("after errors_initialize()");
+    //errors_initialize();
+    //SYSTEM_DEBUG_MEMORY("after errors_initialize()");
 
     events_initialize();
     SYSTEM_DEBUG_MEMORY("after events_initialize()");

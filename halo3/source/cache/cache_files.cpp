@@ -2,6 +2,8 @@
 
 #include "cache/cache_files.h"
 
+#include "tag_files/tag_files.h"
+
 #include "rex_macros.h"
 
 /* ---------- constants */
@@ -18,27 +20,26 @@
 
 // exports
 
-REX_PPC_EXTERN_IMPORT(tag_files_open);
-REX_PPC_EXTERN_IMPORT(tag_files_initialize_from_main);
-REX_PPC_EXTERN_IMPORT(tag_files_close);
-
 // hooks
+
+REX_PPC_HOOK(tag_files_open);
+REX_PPC_HOOK(tag_files_initialize_from_main);
+REX_PPC_HOOK(tag_files_close);
 
 /* ---------- public code */
 
 void tag_files_open(void)
 {
-    REX_PPC_INVOKE(tag_files_open);
+    cache_files_initialize();
 }
 
 void tag_files_initialize_from_main(void)
 {
-    REX_PPC_INVOKE(tag_files_initialize_from_main);
 }
 
 void tag_files_close(void)
 {
-    REX_PPC_INVOKE(tag_files_close);
+    cache_files_dispose();
 }
 
 /* ---------- private code */

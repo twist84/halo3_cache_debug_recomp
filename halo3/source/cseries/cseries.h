@@ -17,6 +17,7 @@ extern void cseries_dispose(void);
 
 extern void debug_memory_manager_initialize(void);
 extern void debug_memory_free_for_exit(void);
+extern void system_debug_memory_internal(char const* place, char const* source_file, long source_line);
 
 /* ---------- globals */
 
