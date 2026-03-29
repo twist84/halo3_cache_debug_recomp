@@ -58,10 +58,6 @@ void file_system_cache_initialize(void)
     REX_PPC_INVOKE(file_system_cache_initialize);
 }
 
-#define SYSTEM_DEBUG_MEMORY(string) \
-    printf(string "\n")
-    //system_debug_memory_internal(string, __FILE__, __LINE__)
-
 int main(int argc, const char** argv, const char** envp)
 {
     SYSTEM_DEBUG_MEMORY("initial call into main()");

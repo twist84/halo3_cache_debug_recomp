@@ -1,6 +1,8 @@
 /* ---------- headers */
 
-#include "cseries\cseries_memory.h"
+#include "cseries/cseries_memory.h"
+
+#include  "rex_macros.h"
 
 #include <cassert>
 #include <memory>
@@ -17,6 +19,24 @@ const size_t k_maximum_memset_size = 0x20000000;
 /* ---------- prototypes */
 
 /* ---------- globals */
+
+/* ---------- ppc */
+
+// exports
+
+//REX_PPC_EXTERN_IMPORT(csmemcpy);
+//REX_PPC_EXTERN_IMPORT(csmemmove);
+//REX_PPC_EXTERN_IMPORT(memmove_guarded);
+//REX_PPC_EXTERN_IMPORT(csmemset);
+//REX_PPC_EXTERN_IMPORT(csmemcmp);
+
+// hooks
+
+REX_PPC_HOOK(csmemcpy);
+REX_PPC_HOOK(csmemmove);
+REX_PPC_HOOK(memmove_guarded);
+REX_PPC_HOOK(csmemset);
+REX_PPC_HOOK(csmemcmp);
 
 /* ---------- public code */
 

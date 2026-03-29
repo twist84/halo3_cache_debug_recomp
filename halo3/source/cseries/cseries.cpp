@@ -23,6 +23,9 @@
 
 // exports
 
+//REX_PPC_EXTERN_IMPORT(cseries_initialize);
+//REX_PPC_EXTERN_IMPORT(cseries_dispose);
+
 // hooks
 
 //REX_PPC_HOOK(cseries_initialize);

@@ -2,6 +2,8 @@
 
 #include "math/real_math.h"
 
+#include "rex_macros.h"
+
 #include <math.h>
 
 /* ---------- constants */
@@ -105,7 +107,82 @@ real_point3d const* global_negative_x_axis3d = reinterpret_cast<real_point3d con
 real_point3d const* global_negative_y_axis3d = reinterpret_cast<real_point3d const*>(&private_negative_identity4x3.left);
 real_point3d const* global_negative_z_axis3d = reinterpret_cast<real_point3d const*>(&private_negative_identity4x3.up);
 
+/* ---------- ppc */
+
+// exports
+
+REX_PPC_EXTERN_IMPORT(real_math_initialize);
+REX_PPC_EXTERN_IMPORT(real_math_dispose);
+REX_PPC_EXTERN_IMPORT(real_math_enable_floating_point_exceptions);
+REX_PPC_EXTERN_IMPORT(real_math_reset_precision);
+REX_PPC_EXTERN_IMPORT(real_math_disable_fpu_exceptions);
+REX_PPC_EXTERN_IMPORT(real_math_recover_fpu_exceptions);
+
+// hooks
+
 /* ---------- public code */
+
+void real_math_initialize(void)
+{
+#if 1
+	REX_PPC_INVOKE(real_math_initialize);
+#else
+	real_math_reset_precision();
+	periodic_functions_initialize();
+#endif
+}
+
+void real_math_dispose(void)
+{
+#if 1
+	REX_PPC_INVOKE(real_math_dispose);
+#else
+	periodic_functions_dispose();
+#endif
+}
+
+void real_math_enable_floating_point_exceptions(bool enable)
+{
+#if 1
+	REX_PPC_INVOKE(real_math_enable_floating_point_exceptions, enable);
+#else
+	g_floating_point_exceptions_enable = enable;
+	real_math_reset_precision();
+#endif
+}
+
+void real_math_reset_precision(void)
+{
+#if 1
+	REX_PPC_INVOKE(real_math_reset_precision);
+#else
+	if (g_floating_point_exceptions_enable)
+	{
+		// what is 0x1000003?
+		_controlfp(0x1000003, 0xFFFFF);
+	}
+#endif
+}
+
+void real_math_disable_fpu_exceptions(void)
+{
+#if 1
+	REX_PPC_INVOKE(real_math_disable_fpu_exceptions);
+#else
+	// what are 0x100001F and 0x8001F?
+	controlfp(0x100001F, 0x8001F);
+#endif
+}
+
+void real_math_recover_fpu_exceptions(void)
+{
+#if 1
+	REX_PPC_INVOKE(real_math_recover_fpu_exceptions);
+#else
+	_clearfp();
+	real_math_reset_precision();
+#endif
+}
 
 real square_root(real x)
 {

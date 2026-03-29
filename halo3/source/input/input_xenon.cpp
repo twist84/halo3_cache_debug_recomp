@@ -64,7 +64,21 @@ static REX_DATA_REFERENCE_DECLARE(0x841E0480, input_globals_xenon, input_globals
 
 // exports
 
+REX_PPC_EXTERN_IMPORT(input_initialize);
+REX_PPC_EXTERN_IMPORT(input_dispose);
+
 // hooks
 
+/* ---------- public code */
+
+bool input_initialize(void)
+{
+	return REX_PPC_INVOKE(input_initialize);
+}
+
+void input_dispose(void)
+{
+	REX_PPC_INVOKE(input_dispose);
+}
 
 /* ---------- private code */

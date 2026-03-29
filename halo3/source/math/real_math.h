@@ -338,6 +338,13 @@ extern real_rectangle3d const* global_zero_rectangle3d;
 
 /* ---------- public code */
 
+extern void real_math_initialize(void);
+extern void real_math_dispose(void);
+extern void real_math_enable_floating_point_exceptions(bool enable);
+extern void real_math_reset_precision(void);
+extern void real_math_disable_fpu_exceptions(void);
+extern void real_math_recover_fpu_exceptions(void);
+
 extern real square_root(real x);
 extern real reciprocal_square_root(real x);
 extern real magnitude_squared2d(real_vector2d const* v);

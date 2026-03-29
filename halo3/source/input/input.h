@@ -39,6 +39,9 @@ static_assert(sizeof(gamepad_state_be) == 0x3C);
 
 /* ---------- public code */
 
+extern bool input_initialize(void);
+extern void input_dispose(void);
+
 /* ---------- private code */
 
 #endif // __INPUT_H__

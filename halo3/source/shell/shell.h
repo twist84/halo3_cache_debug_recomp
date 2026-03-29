@@ -36,11 +36,16 @@ enum e_shell_user_query
 
 /* ---------- definitions */
 
+#define SYSTEM_DEBUG_MEMORY(string) \
+    printf("%s:%d %s\n", __FILE__, __LINE__, string)
+    //system_debug_memory_internal(string, __FILE__, __LINE__)
+
 /* ---------- prototypes */
 
-extern void shell_halt_on_pure_virtual_call();
+extern void shell_halt_on_pure_virtual_call(void);
 extern bool shell_initialize(bool null_device);
 extern void shell_dispose(void);
+extern void shell_platform_verify(void);
 
 // shell xenon
 
