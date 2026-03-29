@@ -16,7 +16,7 @@ struct s_runtime_state_globals
     bool locked; // 0x0
     bool fatal_error_recorded; // 0x1
     bool unused_flags[2]; // 0x2
-    unsigned long base_address; // 0x4, void*, ppc_pvoid_t
+    rex::be<unsigned long> base_address; // 0x4, void*
     rex::be<long> allocated_size; // 0x8
     rex::be<unsigned long> size_checksum; // 0xC
 };

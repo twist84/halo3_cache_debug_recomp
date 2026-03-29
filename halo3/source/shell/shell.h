@@ -47,6 +47,8 @@ extern bool shell_initialize(bool null_device);
 extern void shell_dispose(void);
 extern void shell_platform_verify(void);
 
+extern int microsoft_crt_report_hook(int report_type, char* message, int* return_value);
+
 // shell xenon
 
 extern void shell_platform_dispose(void);

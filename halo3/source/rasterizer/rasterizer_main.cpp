@@ -40,7 +40,7 @@ void c_rasterizer::shell_dispose(void)
 
 bool c_rasterizer::initialize_device(bool use_desktop_window, bool null_device)
 {
-    REX_PPC_INVOKE_CLASS(c_rasterizer, initialize_device, use_desktop_window, null_device);
+    return REX_PPC_INVOKE_CLASS(c_rasterizer, initialize_device, use_desktop_window, null_device);
 }
 
 void c_rasterizer::release_device(void)
