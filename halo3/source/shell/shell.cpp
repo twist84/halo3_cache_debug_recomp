@@ -57,7 +57,7 @@ REX_PPC_EXTERN_IMPORT(minidump_compression_initialize);
 
 void errors_initialize(void)
 {
-    REX_PPC_INVOKE(errors_initialize);
+    //REX_PPC_INVOKE(errors_initialize);
 }
 
 void events_initialize(void)

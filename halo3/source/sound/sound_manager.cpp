@@ -23,8 +23,8 @@ REX_PPC_EXTERN_IMPORT(sound_dispose);
 
 // hooks
 
-REX_PPC_HOOK(sound_initialize);
-REX_PPC_HOOK(sound_dispose);
+//REX_PPC_HOOK(sound_initialize);
+//REX_PPC_HOOK(sound_dispose);
 
 /* ---------- public code */
 

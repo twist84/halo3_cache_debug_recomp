@@ -35,4 +35,9 @@ void destroy_thread_management(void)
     REX_PPC_INVOKE(destroy_thread_management);
 }
 
+void sleep(unsigned long sleep_time_in_milliseconds)
+{
+    Sleep(sleep_time_in_milliseconds);
+}
+
 /* ---------- private code */
