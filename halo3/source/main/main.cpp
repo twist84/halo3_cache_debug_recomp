@@ -4,6 +4,7 @@
 
 #include "cache/restricted_memory_regions.h"
 #include "cseries/cseries_windows.h"
+#include "multithreading/synchronized_value.h"
 #include "multithreading/threads.h"
 #include "profiler/profiler.h"
 
@@ -59,9 +60,9 @@ REX_DATA_REFERENCE_DECLARE(0x846AE484, bool, g_force_upload_even_if_untracked);
 REX_DATA_REFERENCE_DECLARE(0x846AE485, bool, g_fake_minidump_creation);
 REX_DATA_REFERENCE_DECLARE(0x846AE486, bool, g_suppress_keyboard_for_minidump);
 REX_DATA_REFERENCE_DECLARE(0x846AE487, bool, g_startup_watch);
-REX_DATA_REFERENCE_DECLARE(0x846AE494, rex::be<volatile long>, g_render_thread_enabled); // $TODO add `c_interlocked_long`
-REX_DATA_REFERENCE_DECLARE(0x846AE498, rex::be<volatile long>, g_single_thread_request_flags); // $TODO add `c_interlocked_long`
-REX_DATA_REFERENCE_DECLARE(0x846AE498, rex::be<volatile long>, ill_never_be_done); // $TODO add `c_synchronized_long`
+REX_DATA_REFERENCE_DECLARE(0x846AE494, c_interlocked_long, g_render_thread_enabled);
+REX_DATA_REFERENCE_DECLARE(0x846AE498, c_interlocked_long, g_single_thread_request_flags);
+REX_DATA_REFERENCE_DECLARE(0x846AE49C, c_synchronized_long, ill_never_be_done);
 
 /* ---------- private variables */
 
@@ -134,7 +135,7 @@ void main_loop(void)
 				main_loop_body_single_threaded();
 			}
 
-			bool single_threaded_desired = g_single_thread_request_flags != 0; // g_single_thread_request_flags.peek() != 0;
+			bool single_threaded_desired = g_single_thread_request_flags.peek() != 0;
 			if (single_threaded_desired != single_threaded_mode_active)
 			{
 				if (single_threaded_mode_active)
