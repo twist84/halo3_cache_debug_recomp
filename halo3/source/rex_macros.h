@@ -4,7 +4,6 @@
 
 /* ---------- headers */
 
-#include "generated/halo3_cache_debug_config.h"
 #include "generated/halo3_cache_debug_init.h"
 
 #include <rex/rex_app.h>
@@ -18,34 +17,34 @@
 /* ---------- constants */
 
 #define REX_PPC_EXTERN_IMPORT_CLASS(class_name, function) \
-	PPC_EXTERN_IMPORT(__imp__rex_##class_name##_##function)
+	REX_EXTERN(__imp__rex_##class_name##_##function)
 
 #define REX_PPC_INVOKE_CLASS(class_name, function, ...) \
-	rex::GuestToHostFunction<function_return_t<decltype(function)>>(__imp__rex_##class_name##_##function, __VA_ARGS__)
+	rex::ppc::GuestToHostFunction<function_return_t<decltype(function)>>(__imp__rex_##class_name##_##function, __VA_ARGS__)
 
 #define REX_PPC_HOOK_CLASS(class_name, function) \
-	PPC_HOOK(rex_##class_name##_##function, class_name::function)
+	REX_HOOK(rex_##class_name##_##function, class_name::function)
 
 #define REX_PPC_EXTERN_IMPORT(function) \
-	PPC_EXTERN_IMPORT(__imp__rex_##function)
+	REX_EXTERN(__imp__rex_##function)
 
 #define REX_PPC_INVOKE(function, ...) \
-	rex::GuestToHostFunction<function_return_t<decltype(function)>>(__imp__rex_##function, __VA_ARGS__)
+	rex::ppc::GuestToHostFunction<function_return_t<decltype(function)>>(__imp__rex_##function, __VA_ARGS__)
 
 #define REX_PPC_INVOKE2(return_type, function, ...) \
-	rex::GuestToHostFunction<return_type>(__imp__rex_##function, __VA_ARGS__)
+	GuestToHostFunction<return_type>(__imp__rex_##function, __VA_ARGS__)
 
 #define REX_PPC_HOOK(function) \
-	PPC_HOOK(rex_##function, function)
+	REX_HOOK(rex_##function, function)
 
 #define REX_PPC_STUB(function) \
-	PPC_STUB(rex_##function)
+	REX_STUB(rex_##function)
 
 #define REX_PPC_STUB_LOG(function, msg) \
-	PPC_STUB_LOG(rex_##function, msg)
+	REX_STUB_LOG(rex_##function, msg)
 
 #define REX_PPC_STUB_RETURN(function, value) \
-	PPC_STUB_RETURN(rex_##function, value)
+	REX_STUB_RETURN(rex_##function, value)
 
 #define REX_DATA_REFERENCE_DECLARE(address, type, name) \
 	type& name = *reinterpret_cast<type*>(0x100000000 + address)
