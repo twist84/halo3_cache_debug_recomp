@@ -13,6 +13,8 @@
 #include <rex/graphics/flags.h>
 #include <rex/input/flags.h>
 
+#include <timeapi.h>
+
 class Halo3CacheDebugApp : public rex::ReXApp {
  public:
   using rex::ReXApp::ReXApp;
@@ -34,6 +36,7 @@ protected:
 	void OnPreSetup(rex::RuntimeConfig& config) override;
 	void OnLoadXexImage(std::string& xex_image) override;
 	void OnPostSetup() override;
+	void OnShutdown() override;
 	void OnConfigurePaths(rex::PathConfig& paths) override;
 };
 
@@ -47,6 +50,8 @@ void Halo3CacheDebugApp::OnPreSetup(rex::RuntimeConfig& config)
 	//REXCVAR_SET(fullscreen, true);
 	//REXCVAR_SET(vsync, false);
 	//REXCVAR_SET(resolution_scale, 2);
+
+	timeBeginPeriod(1);
 }
 
 void Halo3CacheDebugApp::OnLoadXexImage(std::string& xex_image)
@@ -107,4 +112,9 @@ void Halo3CacheDebugApp::OnConfigurePaths(rex::PathConfig& paths)
 		paths.user_data_root = ".";
 		paths.update_data_root = ".";
 	}
+}
+
+void Halo3CacheDebugApp::OnShutdown()
+{
+	timeBeginPeriod(0);
 }

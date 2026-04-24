@@ -2,7 +2,6 @@
 //
 // This file is yours to edit. 'rexglue migrate' will NOT overwrite it.
 
-#include "generated/halo3_cache_debug_config.h"
 #include "generated/halo3_cache_debug_init.h"
 
 #include "halo3_cache_debug_app.h"
@@ -23,35 +22,7 @@ REX_PPC_HOOK(_time64);
 
 // XBDM
 
-//REX_PPC_STUB(CAP_Enter_Function);
-//REX_PPC_STUB(CAP_Exit_Function);
-REX_PPC_STUB(DmQueryMemoryStatistics);
-REX_PPC_STUB(DmCloseLoadedModules);
 REX_PPC_STUB_RETURN(DmWalkLoadedModules, 0x82DA0104); // XBDM_ENDOFLIST
-REX_PPC_STUB(DmGetXboxName);
-REX_PPC_STUB(DmCloseNotificationSession);
-REX_PPC_STUB(DmNotify);
-REX_PPC_STUB(DmOpenNotificationSession);
-REX_PPC_STUB(DmIsDebuggerPresent);
-REX_PPC_STUB(DmCloseCommittedMemory);
-REX_PPC_STUB(DmWalkCommittedMemory);
-REX_PPC_STUB(DmSendNotificationString);
-REX_PPC_STUB(DmRegisterCommandProcessor);
-REX_PPC_STUB(DmCloseModuleSections);
-REX_PPC_STUB(DmWalkModuleSections);
-REX_PPC_STUB(DmCaptureStackBackTrace);
-REX_PPC_STUB(DmSuspendThread);
-REX_PPC_STUB(DmGetThreadList);
-REX_PPC_STUB(DmResumeThread);
-REX_PPC_STUB(DmGetThreadContext);
-REX_PPC_STUB(DmGetThreadInfoEx);
-REX_PPC_STUB(DmWalkLoadedModulesEx);
-REX_PPC_STUB(DmGetMemory);
-REX_PPC_STUB(DmTraceStartRecording);
-REX_PPC_STUB(DmTraceStartRecordingFunction);
-REX_PPC_STUB(DmTraceStopRecording);
-REX_PPC_STUB(DmTraceSaveBuffer);
-REX_PPC_STUB(DmTraceSetBufferSize);
 REX_PPC_STUB_RETURN(DmRegisterCommandProcessorEx, 0);
 
 // REX
@@ -292,5 +263,12 @@ static void hs_get_function_documentation_string(short function_index, char* buf
 
 static void stack_walk_with_context_internal(const struct s_file_reference* file, short levels_to_ignore, _CONTEXT* context_pointer, void* reference_ignore_address, long levels_to_walk, unsigned long* out_stack_walk_buffer, long* out_levels_walked)
 {
+	(void)(file);
+	(void)(levels_to_ignore);
+	(void)(context_pointer);
+	(void)(reference_ignore_address);
+	(void)(levels_to_walk);
+	(void)(out_stack_walk_buffer);
+	(void)(out_levels_walked);
 	// skip stack walk for now
 }
