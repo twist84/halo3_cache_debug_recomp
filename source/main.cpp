@@ -20,11 +20,6 @@ REX_PPC_HOOK(Sleep);
 REX_PPC_HOOK(GetSystemTime);
 REX_PPC_HOOK(_time64);
 
-// XBDM
-
-REX_PPC_STUB_RETURN(DmWalkLoadedModules, 0x82DA0104); // XBDM_ENDOFLIST
-REX_PPC_STUB_RETURN(DmRegisterCommandProcessorEx, 0);
-
 // REX
 
 #define PRINT_IMPORT_HELPER(name, print_name) \
