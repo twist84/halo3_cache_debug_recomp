@@ -1,12 +1,100 @@
 // halo3_cache_debug - ReXGlue Recompiled Project
-//
-// This file is yours to edit. 'rexglue migrate' will NOT overwrite it.
 
 #include "generated/halo3_cache_debug_init.h"
 
 #include "halo3_cache_debug_app.h"
 
+// Halo3CacheDebugApp
+
 REX_DEFINE_APP(halo3_cache_debug, Halo3CacheDebugApp::Create)
+
+#include <rex/filesystem/devices/host_path_device.h>
+#include <rex/filesystem/vfs.h>
+#include <rex/graphics/flags.h>
+#include <rex/input/flags.h>
+
+#include <timeapi.h>
+
+void Halo3CacheDebugApp::OnPreSetup(rex::RuntimeConfig& config)
+{
+	REXCVAR_SET(allow_game_relative_writes, true);
+	REXCVAR_SET(gpu_allow_invalid_fetch_constants, true);
+	REXCVAR_SET(input_backend, "xinput");
+	//REXCVAR_SET(fullscreen, true);
+	//REXCVAR_SET(vsync, false);
+	//REXCVAR_SET(resolution_scale, 2);
+
+	timeBeginPeriod(1);
+}
+
+void Halo3CacheDebugApp::OnLoadXexImage(std::string& xex_image)
+{
+	xex_image = "game:\\halo3_cache_debug.xex";
+}
+
+void Halo3CacheDebugApp::OnPostSetup()
+{
+	rex::Runtime* _runtime = rex::ReXApp::ReXApp::runtime();
+	rex::filesystem::VirtualFileSystem* fs = _runtime->file_system();
+
+	auto cache_device = std::make_unique<rex::filesystem::HostPathDevice>(
+		"\\CACHE", _runtime->game_data_root(), false);
+	if (!cache_device->Initialize())
+	{
+		REXFS_ERROR("Unable to scan cache path");
+	}
+	else
+	{
+		if (!fs->RegisterDevice(std::move(cache_device)))
+		{
+			REXFS_ERROR("Unable to register cache path");
+		}
+		else
+		{
+			fs->RegisterSymbolicLink("cache:", "\\CACHE");
+		}
+	}
+
+	auto xstorage_device = std::make_unique<rex::filesystem::HostPathDevice>(
+		"\\XSTORAGE", _runtime->game_data_root() / "xstorage", false);
+	if (!xstorage_device->Initialize())
+	{
+		REXFS_ERROR("Unable to scan xstorage path");
+	}
+	else
+	{
+		if (!fs->RegisterDevice(
+			std::move(xstorage_device)))
+		{
+			REXFS_ERROR("Unable to register xstorage path");
+		}
+		else
+		{
+			fs->RegisterSymbolicLink("xstorage:",
+				"\\XSTORAGE");
+		}
+	}
+}
+
+void Halo3CacheDebugApp::OnConfigurePaths(rex::PathConfig& paths)
+{
+	if (!rex::debug::IsDebuggerAttached())
+	{
+		// for user deployments not a developer debugging
+		paths.game_data_root = ".";
+		paths.user_data_root = ".";
+		paths.update_data_root = ".";
+		paths.cache_root = ".";
+		paths.config_path = ".\\halo3_cache_debug.toml";
+	}
+}
+
+void Halo3CacheDebugApp::OnShutdown()
+{
+	timeBeginPeriod(0);
+}
+
+// Halo3CacheDebugApp end
 
 #include "rex_macros.h"
 
@@ -23,8 +111,8 @@ REX_PPC_HOOK(_time64);
 // REX
 
 #define PRINT_IMPORT_HELPER(name, print_name) \
-	PPC_EXTERN_IMPORT(__imp__##print_name); \
-	extern "C" PPC_FUNC(name) \
+	REX_EXTERN(__imp__##print_name); \
+	extern "C" REX_FUNC(name) \
 	{ \
 		__imp__##print_name(ctx, base); \
 	}

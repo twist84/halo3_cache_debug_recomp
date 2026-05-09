@@ -14,7 +14,7 @@ constexpr unsigned long k_tls_game_globals_offset = 0x80;
 
 /* ---------- prototypes */
 
-PPC_EXTERN_IMPORT(__imp__get_thread_local_by_offset);
+DECLARE_REX_FUNC(get_thread_local_by_offset);
 
 /* ---------- globals */
 
